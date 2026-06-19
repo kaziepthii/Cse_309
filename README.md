@@ -1,2 +1,2 @@
-# Cse_309 - Personal Finance Tracker
+Cse_309 - Personal Finance Tracker
 
