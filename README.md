@@ -1,5 +1,11 @@
-<<<<<<< Updated upstream
-# 💰 Personal Finance Tracker
+# Cse_309 - # 💰 Personal Finance Tracker
+
+A web-based personal finance management application.
+
+## Documentation
+All project documentation is available in the `/docs` folder.
+>>>>>>> Stashed changes
+
 
 A full-stack web application for managing personal finances, built with **React** and **FastAPI**.
 
@@ -44,10 +50,4 @@ A full-stack web application for managing personal finances, built with **React*
 
 
 =======
-# Cse_309 - Personal Finance Tracker
 
-A web-based personal finance management application.
-
-## Documentation
-All project documentation is available in the `/docs` folder.
->>>>>>> Stashed changes
