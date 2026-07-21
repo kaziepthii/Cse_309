@@ -33,6 +33,13 @@ function App() {
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
 
+  // Edit states
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editDescription, setEditDescription] = useState('');
+  const [editAmount, setEditAmount] = useState('');
+  const [editType, setEditType] = useState<'income' | 'expense'>('income');
+
   useEffect(() => {
     if (userId) {
       fetchTransactions();
@@ -148,6 +155,37 @@ function App() {
     }
   };
 
+  // Edit transaction function
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setEditDescription(transaction.description);
+    setEditAmount(transaction.amount.toString());
+    setEditType(transaction.type);
+    setIsEditModalOpen(true);
+  };
+
+  // Update transaction function
+  const updateTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTransaction || !editDescription || !editAmount || !userId) return;
+
+    try {
+      await axios.put(`${API_URL}/api/transactions/${editingTransaction.id}?user_id=${userId}`, {
+        description: editDescription,
+        amount: parseFloat(editAmount),
+        type: editType,
+        date: editingTransaction.date
+      });
+      
+      setIsEditModalOpen(false);
+      setEditingTransaction(null);
+      fetchTransactions();
+      fetchSummary();
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+    }
+  };
+
   // ============================================
   // LOGIN / REGISTER PAGE
   // ============================================
@@ -228,7 +266,6 @@ function App() {
       </div>
     );
   }
-  
 
   // ============================================
   // DASHBOARD PAGE
@@ -312,12 +349,48 @@ function App() {
                 <span className={t.type === 'income' ? 'positive' : 'negative'}>
                   {t.type === 'income' ? '+' : '-'} ৳{t.amount.toFixed(2)}
                 </span>
-                <button onClick={() => deleteTransaction(t.id)} className="delete-btn">🗑️</button>
+                <div className="transaction-actions">
+                  <button onClick={() => handleEdit(t)} className="edit-btn">✏️</button>
+                  <button onClick={() => deleteTransaction(t.id)} className="delete-btn">🗑️</button>
+                </div>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Edit Transaction Modal */}
+      {isEditModalOpen && editingTransaction && (
+        <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>✏️ Edit Transaction</h2>
+            <form onSubmit={updateTransaction}>
+              <input
+                type="text"
+                placeholder="Description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Amount (Taka)"
+                value={editAmount}
+                onChange={(e) => setEditAmount(e.target.value)}
+                required
+              />
+              <select value={editType} onChange={(e) => setEditType(e.target.value as 'income' | 'expense')}>
+                <option value="income">📈 Income</option>
+                <option value="expense">📉 Expense</option>
+              </select>
+              <div className="modal-buttons">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="cancel-btn">Cancel</button>
+                <button type="submit" className="save-btn">💾 Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

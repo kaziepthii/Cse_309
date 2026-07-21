@@ -190,3 +190,30 @@ def get_summary(user_id: int):
 @app.get("/")
 def root():
     return {"message": "Finance Tracker API is running!"}
+@app.put("/api/transactions/{transaction_id}")
+def update_transaction(transaction_id: int, transaction: TransactionCreate, user_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Check if transaction exists and belongs to user
+    cursor.execute(
+        "SELECT * FROM transactions WHERE id = ? AND user_id = ?",
+        (transaction_id, user_id)
+    )
+    existing = cursor.fetchone()
+    
+    if not existing:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    # Update transaction
+    cursor.execute(
+        """UPDATE transactions 
+           SET description = ?, amount = ?, type = ?, date = ? 
+           WHERE id = ? AND user_id = ?""",
+        (transaction.description, transaction.amount, transaction.type, transaction.date, transaction_id, user_id)
+    )
+    conn.commit()
+    conn.close()
+    
+    return {"message": "Transaction updated successfully"}
