@@ -33,7 +33,7 @@ function App() {
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
 
-  // ===== EDIT STATES (ADD THIS) =====
+  // ===== EDIT STATES =====
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDescription, setEditDescription] = useState('');
@@ -155,7 +155,7 @@ function App() {
     }
   };
 
-  // ===== EDIT FUNCTIONS (ADD THIS) =====
+  // ===== EDIT FUNCTIONS =====
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
     setEditDescription(transaction.description);
@@ -330,7 +330,7 @@ function App() {
         </form>
       </div>
 
-      {/* Transactions List - UPDATED with Edit button */}
+      {/* Transactions List */}
       <div className="transaction-list">
         <h2>📋 Recent Transactions</h2>
         {transactions.length === 0 ? (
@@ -358,7 +358,7 @@ function App() {
         )}
       </div>
 
-      {/* ===== EDIT MODAL (ADD THIS) ===== */}
+      {/* ===== EDIT MODAL ===== */}
       {isEditModalOpen && editingTransaction && (
         <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
