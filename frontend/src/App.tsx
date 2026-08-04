@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
-
+import SearchBar from './components/SearchBar';
 const API_URL = 'http://localhost:8000';
 
 interface Transaction {
@@ -33,7 +33,10 @@ function App() {
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
 
-  // ===== EDIT STATES =====
+  // 👇 Search state (নতুন)
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Edit states
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDescription, setEditDescription] = useState('');
@@ -155,7 +158,6 @@ function App() {
     }
   };
 
-  // ===== EDIT FUNCTIONS =====
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
     setEditDescription(transaction.description);
@@ -184,6 +186,11 @@ function App() {
       console.error('Error updating transaction:', error);
     }
   };
+
+  // 👇 Filter transactions based on search (নতুন)
+  const filteredTransactions = transactions.filter((t) =>
+    t.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // ============================================
   // LOGIN / REGISTER PAGE
@@ -304,6 +311,18 @@ function App() {
         </div>
       </div>
 
+      {/* 👇 Search Bar (নতুন) */}
+      <SearchBar
+        searchTerm={searchTerm}
+        onSearch={setSearchTerm}
+        onClear={() => setSearchTerm('')}
+      />
+
+      {/* 👇 No result message (নতুন) */}
+      {filteredTransactions.length === 0 && searchTerm && (
+        <p className="no-result">❌ No transaction found for "{searchTerm}"</p>
+      )}
+
       {/* Add Transaction Form */}
       <div className="form-wrapper">
         <h2 className="form-title">✏️ Add Transaction</h2>
@@ -330,13 +349,13 @@ function App() {
         </form>
       </div>
 
-      {/* Transactions List */}
+      {/* Transactions List - 👇 filteredTransactions ব্যবহার করুন */}
       <div className="transaction-list">
         <h2>📋 Recent Transactions</h2>
-        {transactions.length === 0 ? (
+        {filteredTransactions.length === 0 && !searchTerm ? (
           <p className="empty-msg">📭 No transactions yet. Start adding!</p>
         ) : (
-          transactions.map((t) => (
+          filteredTransactions.map((t) => (
             <div key={t.id} className={`transaction-item ${t.type}`}>
               <div className="transaction-info">
                 <span className="transaction-desc">
@@ -358,7 +377,7 @@ function App() {
         )}
       </div>
 
-      {/* ===== EDIT MODAL ===== */}
+      {/* Edit Modal */}
       {isEditModalOpen && editingTransaction && (
         <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
