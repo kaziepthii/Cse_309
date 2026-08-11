@@ -305,7 +305,7 @@ body {
 }
 
 /* ============================================
-   SEARCH BAR (NEW)
+   SEARCH BAR
 ============================================ */
 .search-container {
   display: flex;
@@ -351,6 +351,68 @@ body {
   padding: 20px;
   font-size: 16px;
   font-weight: 600;
+}
+
+/* ============================================
+   FILTER SECTION
+============================================ */
+.filter-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-select,
+.filter-date {
+  padding: 10px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+  transition: border-color 0.3s;
+}
+
+.filter-select:focus,
+.filter-date:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.clear-filter {
+  padding: 10px 15px;
+  background: #fc8181;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.clear-filter:hover {
+  background: #e53e3e;
+}
+
+
+/* ============================================
+   BUDGET ALERT BANNER
+============================================ */
+.budget-alert-banner {
+  background: #fed7d7;
+  border: 2px solid #e53e3e;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.budget-alert-banner .alert-icon {
+  font-size: 24px;
 }
 
 /* ============================================
@@ -622,6 +684,486 @@ body {
 }
 
 /* ============================================
+   WALLET SECTION
+============================================ */
+.wallet-section {
+  background: white;
+  padding: 20px 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.wallet-section h3,
+.wallet-section h4 {
+  color: #2d3748;
+  margin-bottom: 15px;
+}
+
+.wallet-balance {
+  text-align: center;
+  padding: 15px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.wallet-balance h2 {
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.wallet-summary {
+  margin-bottom: 20px;
+}
+
+.wallet-summary .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.wallet-summary .summary-card {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.wallet-summary .summary-card span {
+  display: block;
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 5px;
+}
+
+.wallet-summary .summary-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.wallet-summary .summary-card.wallet h2 {
+  color: #4299e1;
+}
+.wallet-summary .summary-card.income h2 {
+  color: #48bb78;
+}
+.wallet-summary .summary-card.expense h2 {
+  color: #fc8181;
+}
+
+.wallet-transactions {
+  margin-top: 20px;
+}
+
+.wallet-transactions .form-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.wallet-transactions .form-toggle button {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.wallet-transactions .form-toggle button.active {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+}
+
+.wallet-transactions .wallet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.wallet-transactions .wallet-form input,
+.wallet-transactions .wallet-form select {
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.wallet-transactions .wallet-form button {
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.wallet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: #f7fafc;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.wallet-item:hover {
+  background: #edf2f7;
+}
+
+.wallet-item .wallet-item-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wallet-item .category-icon {
+  font-size: 20px;
+}
+
+.wallet-item .description {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.wallet-item .date {
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+/* ============================================
+   FUTURE BILLS
+============================================ */
+.future-bills {
+  margin-top: 20px;
+}
+
+.future-bills .wallet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.future-bills .wallet-form input,
+.future-bills .wallet-form select {
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.future-bills .wallet-form button {
+  padding: 12px;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.bill-item {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.bill-item.due {
+  border-left: 4px solid #e53e3e;
+}
+
+.bill-item .bill-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bill-item .bill-title {
+  font-weight: 600;
+}
+
+.bill-item .bill-amount {
+  font-weight: 700;
+  color: #e53e3e;
+}
+
+.bill-item .bill-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bill-item .bill-date {
+  font-size: 14px;
+  color: #718096;
+}
+
+.bill-item .bill-date.due {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.bill-item .pay-btn {
+  padding: 6px 16px;
+  background: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.bill-item .pay-btn:hover:not(:disabled) {
+  background: #3182ce;
+}
+
+.bill-item .pay-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   SAVINGS GOALS
+============================================ */
+.savings-goals {
+  margin-top: 20px;
+}
+
+.savings-goals .wallet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.savings-goals .wallet-form input {
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.savings-goals .wallet-form button {
+  padding: 12px;
+  background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.goal-item {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.goal-item .goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.goal-item .goal-name {
+  font-weight: 600;
+}
+
+.goal-item .goal-amount {
+  font-weight: 700;
+  color: #4299e1;
+}
+
+.goal-item .goal-deadline {
+  font-size: 14px;
+  color: #718096;
+  margin-top: 5px;
+}
+
+.goal-item .goal-add-money {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.goal-item .goal-add-money input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.goal-item .goal-add-money button {
+  padding: 8px 16px;
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ============================================
+   MONTHLY BUDGET
+============================================ */
+.monthly-budget {
+  margin-top: 20px;
+}
+
+.monthly-budget .wallet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.monthly-budget .wallet-form input {
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.monthly-budget .wallet-form button {
+  padding: 12px;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.budget-total {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.budget-total-item {
+  background: #f7fafc;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.budget-total-item span:first-child {
+  display: block;
+  font-size: 12px;
+  color: #718096;
+}
+
+.budget-total-item span:last-child {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.budget-total-item .expense {
+  color: #fc8181;
+}
+
+.budget-item {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.budget-item .budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.budget-item .budget-category {
+  font-weight: 600;
+}
+
+.budget-item .budget-amount {
+  font-weight: 700;
+}
+
+.budget-item .budget-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.budget-item .budget-details .positive {
+  color: #48bb78;
+}
+
+.budget-item .budget-details .negative {
+  color: #fc8181;
+}
+
+/* ============================================
+   BUDGET ALERTS
+============================================ */
+.budget-alerts {
+  background: #fff5f5;
+  border: 2px solid #fc8181;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.budget-alerts h4 {
+  color: #e53e3e;
+  margin-bottom: 10px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.alert-item .alert-icon {
+  font-size: 20px;
+}
+
+.alert-item .alert-content {
+  flex: 1;
+}
+
+.alert-item .alert-category {
+  font-weight: 600;
+}
+
+.alert-item .alert-details {
+  font-size: 14px;
+  color: #718096;
+}
+
+.alert-item .alert-exceeded {
+  font-weight: 700;
+  color: #e53e3e;
+}
+
+/* ============================================
    RESPONSIVE
 ============================================ */
 @media (max-width: 768px) {
@@ -683,5 +1225,236 @@ body {
 
   .search-container {
     flex-wrap: wrap;
+  }
+
+  .wallet-summary .summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .budget-total {
+    grid-template-columns: 1fr;
+  }
+
+  .wallet-transactions .form-toggle {
+    flex-direction: column;
+  }
+
+  .goal-item .goal-add-money {
+    flex-direction: column;
+  }
+
+  .bill-item .bill-meta {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================
+   APP LAYOUT & SIDEBAR
+============================================ */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  min-height: 100vh;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sidebar-link {
+  display: block;
+  color: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-bottom: 5px;
+  transition: background 0.3s;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.logout-btn-sidebar {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.logout-btn-sidebar:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   MAIN CONTENT
+============================================ */
+.main-content {
+  margin-left: 250px;
+  flex: 1;
+  padding: 20px;
+  background: #f0f2f5;
+  min-height: 100vh;
+}
+
+/* ============================================
+   PAGE CONTAINER
+============================================ */
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-container h1 {
+  color: #2d3748;
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.wallet-page h1 {
+  color: #2d3748;
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.dashboard-content {
+  max-width: 100%;
+}
+
+/* ============================================
+   DARK MODE TOGGLE
+============================================ */
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.3s;
+  width: 100%;
+  color: white;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.dark-mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   DARK MODE
+============================================ */
+body.dark-mode {
+  background: #1a202c;
+  color: #e2e8f0;
+}
+
+body.dark-mode .dashboard-header,
+body.dark-mode .card,
+body.dark-mode .form-wrapper,
+body.dark-mode .transaction-list,
+body.dark-mode .wallet-section,
+body.dark-mode .modal,
+body.dark-mode .auth-card,
+body.dark-mode .search-container,
+body.dark-mode .filter-select,
+body.dark-mode .filter-date {
+  background: #2d3748;
+  color: #e2e8f0;
+  border-color: #4a5568;
+}
+
+body.dark-mode .sidebar {
+  background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+}
+
+body.dark-mode .search-input,
+body.dark-mode .add-form input,
+body.dark-mode .add-form select {
+  background: #4a5568;
+  color: white;
+  border-color: #4a5568;
+}
+
+body.dark-mode .search-input::placeholder {
+  color: #a0aec0;
+}
+
+body.dark-mode .transaction-item {
+  background: #4a5568;
+}
+
+body.dark-mode .transaction-item:hover {
+  background: #5a6a7a;
+}
+
+body.dark-mode .auth-error {
+  background: #4a1a1a;
+  color: #fc8181;
+}
+
+body.dark-mode .auth-success {
+  background: #1a4a1a;
+  color: #48bb78;
+}
+
+body.dark-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+  .main-content {
+    margin-left: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 60px;
+    padding: 10px;
+  }
+  .sidebar-logo {
+    font-size: 14px;
+  }
+  .sidebar-link {
+    font-size: 12px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .main-content {
+    margin-left: 60px;
+    padding: 10px;
   }
 }
