@@ -47,7 +47,6 @@ def init_db():
         )
     ''')
     
-    # ===== WALLET TABLES =====
     # Wallet Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS wallet (
@@ -133,10 +132,9 @@ class TransactionCreate(BaseModel):
     type: str
     date: str
 
-# ===== WALLET MODELS =====
 class WalletTransactionCreate(BaseModel):
     amount: float
-    type: str  # 'income', 'expense', 'add', 'withdraw', 'savings'
+    type: str
     category: str = None
     description: str = ""
 
@@ -176,7 +174,6 @@ def register(user: UserRegister):
     )
     user_id = cursor.lastrowid
     
-    # Create wallet for new user
     cursor.execute(
         "INSERT INTO wallet (user_id, balance) VALUES (?, ?)",
         (user_id, 0)
@@ -208,21 +205,19 @@ def login(user: UserLogin):
         "username": db_user["username"]
     }
 
-# ===== TRANSACTION ENDPOINTS =====
+# ===== TRANSACTION ENDPOINTS WITH BUDGET UPDATE =====
 
 @app.post("/api/transactions")
 def add_transaction(transaction: TransactionCreate, user_id: int):
     conn = get_db()
     cursor = conn.cursor()
     
-    # Save transaction
     cursor.execute(
         "INSERT INTO transactions (user_id, description, amount, type, date) VALUES (?, ?, ?, ?, ?)",
         (user_id, transaction.description, transaction.amount, transaction.type, transaction.date)
     )
     transaction_id = cursor.lastrowid
     
-    # Update wallet
     cursor.execute("SELECT balance FROM wallet WHERE user_id = ?", (user_id,))
     wallet = cursor.fetchone()
     
@@ -235,13 +230,22 @@ def add_transaction(transaction: TransactionCreate, user_id: int):
             raise HTTPException(status_code=400, detail="Insufficient wallet balance")
         new_balance = wallet["balance"] - transaction.amount
         wallet_type = "expense"
+        
+        # ===== BUDGET UPDATE =====
+        # Get month in MM/YYYY format
+        month = "/".join(transaction.date.split("/")[:2]) if "/" in transaction.date else transaction.date
+        cursor.execute(
+            """UPDATE monthly_budget 
+               SET spent_amount = spent_amount + ? 
+               WHERE user_id = ? AND month = ?""",
+            (transaction.amount, user_id, month)
+        )
     
     cursor.execute(
         "UPDATE wallet SET balance = ? WHERE user_id = ?",
         (new_balance, user_id)
     )
     
-    # Wallet transaction record
     cursor.execute(
         """INSERT INTO wallet_transactions 
            (user_id, amount, type, description, date) 
@@ -292,7 +296,6 @@ def update_transaction(transaction_id: int, transaction: TransactionCreate, user
         conn.close()
         raise HTTPException(status_code=404, detail="Transaction not found")
     
-    # Update wallet (reverse old, apply new)
     cursor.execute("SELECT balance FROM wallet WHERE user_id = ?", (user_id,))
     wallet = cursor.fetchone()
     balance = wallet["balance"]
@@ -314,6 +317,25 @@ def update_transaction(transaction_id: int, transaction: TransactionCreate, user
         "UPDATE wallet SET balance = ? WHERE user_id = ?",
         (balance, user_id)
     )
+    
+    # ===== BUDGET UPDATE =====
+    if existing["type"] == "expense":
+        old_month = "/".join(existing["date"].split("/")[:2]) if "/" in existing["date"] else existing["date"]
+        cursor.execute(
+            """UPDATE monthly_budget 
+               SET spent_amount = spent_amount - ? 
+               WHERE user_id = ? AND month = ?""",
+            (existing["amount"], user_id, old_month)
+        )
+    
+    if transaction.type == "expense":
+        new_month = "/".join(transaction.date.split("/")[:2]) if "/" in transaction.date else transaction.date
+        cursor.execute(
+            """UPDATE monthly_budget 
+               SET spent_amount = spent_amount + ? 
+               WHERE user_id = ? AND month = ?""",
+            (transaction.amount, user_id, new_month)
+        )
     
     cursor.execute(
         """UPDATE transactions 
@@ -341,7 +363,6 @@ def delete_transaction(transaction_id: int, user_id: int):
         conn.close()
         raise HTTPException(status_code=404, detail="Transaction not found")
     
-    # Update wallet
     cursor.execute("SELECT balance FROM wallet WHERE user_id = ?", (user_id,))
     wallet = cursor.fetchone()
     balance = wallet["balance"]
@@ -350,6 +371,15 @@ def delete_transaction(transaction_id: int, user_id: int):
         balance -= existing["amount"]
     else:
         balance += existing["amount"]
+        
+        # ===== BUDGET UPDATE =====
+        month = "/".join(existing["date"].split("/")[:2]) if "/" in existing["date"] else existing["date"]
+        cursor.execute(
+            """UPDATE monthly_budget 
+               SET spent_amount = spent_amount - ? 
+               WHERE user_id = ? AND month = ?""",
+            (existing["amount"], user_id, month)
+        )
     
     cursor.execute(
         "UPDATE wallet SET balance = ? WHERE user_id = ?",
@@ -559,7 +589,6 @@ def pay_future_bill(bill_id: int, user_id: int):
         conn.close()
         raise HTTPException(status_code=404, detail="Bill not found")
     
-    # Check wallet balance
     cursor.execute("SELECT balance FROM wallet WHERE user_id = ?", (user_id,))
     wallet = cursor.fetchone()
     
@@ -567,26 +596,32 @@ def pay_future_bill(bill_id: int, user_id: int):
         conn.close()
         raise HTTPException(status_code=400, detail="Insufficient wallet balance")
     
-    # Deduct from wallet
     new_balance = wallet["balance"] - bill["amount"]
     cursor.execute(
         "UPDATE wallet SET balance = ? WHERE user_id = ?",
         (new_balance, user_id)
     )
     
-    # Mark bill as paid
     cursor.execute(
         "UPDATE future_bills SET is_paid = 1 WHERE id = ?",
         (bill_id,)
     )
     
-    # Add to wallet transactions
     cursor.execute(
         """INSERT INTO wallet_transactions 
            (user_id, amount, type, category, description, date) 
            VALUES (?, ?, ?, ?, ?, ?)""",
         (user_id, bill["amount"], "expense", bill["category"], f"Bill: {bill['title']}", 
          datetime.now().strftime("%Y-%m-%d"))
+    )
+    
+    # ===== BUDGET UPDATE =====
+    month = datetime.now().strftime("%m/%Y")
+    cursor.execute(
+        """UPDATE monthly_budget 
+           SET spent_amount = spent_amount + ? 
+           WHERE user_id = ? AND month = ?""",
+        (bill["amount"], user_id, month)
     )
     
     conn.commit()
@@ -691,7 +726,6 @@ def set_budget(budget: BudgetCreate, user_id: int):
     conn = get_db()
     cursor = conn.cursor()
     
-    # Check if budget exists for this month and category
     cursor.execute(
         "SELECT * FROM monthly_budget WHERE user_id = ? AND month = ? AND category = ?",
         (user_id, budget.month, budget.category)

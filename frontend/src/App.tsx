@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SearchBar from './components/SearchBar';
+import AddTransactionForm from './components/AddTransactionForm';
 
 // Wallet Components Import
 import WalletSummary from './components/Wallet/WalletSummary';
@@ -81,9 +82,6 @@ function App() {
 
   // Transaction states
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [type, setType] = useState<'income' | 'expense'>('income');
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
@@ -98,17 +96,11 @@ function App() {
   const [editAmount, setEditAmount] = useState('');
   const [editType, setEditType] = useState<'income' | 'expense'>('income');
 
-  // ===== DARK MODE STATE =====
   const [darkMode, setDarkMode] = useState(false);
-
-  // ===== FILTER STATES =====
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterDate, setFilterDate] = useState('');
-
-  // ===== BUDGET ALERT STATE =====
   const [budgetAlert, setBudgetAlert] = useState<string | null>(null);
 
-  // ===== WALLET STATES =====
   const [walletBalance, setWalletBalance] = useState(0);
   const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
   const [futureBills, setFutureBills] = useState<FutureBill[]>([]);
@@ -116,32 +108,34 @@ function App() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [budgetAlerts, setBudgetAlerts] = useState<BudgetAlert[]>([]);
 
-  // ===== TOGGLE DARK MODE =====
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.body.classList.toggle('dark-mode');
   };
 
-  // ===== USE EFFECT =====
+  const refreshAllData = async () => {
+    await Promise.all([
+      fetchTransactions(),
+      fetchSummary(),
+      fetchWallet(),
+      fetchWalletTransactions(),
+      fetchFutureBills(),
+      fetchSavingsGoals(),
+      fetchBudget(),
+      fetchBudgetAlerts()
+    ]);
+  };
+
   useEffect(() => {
     if (userId) {
-      fetchTransactions();
-      fetchSummary();
-      fetchWallet();
-      fetchWalletTransactions();
-      fetchFutureBills();
-      fetchSavingsGoals();
-      fetchBudget();
-      fetchBudgetAlerts();
+      refreshAllData();
     }
   }, [userId]);
 
-  // ===== CHECK BUDGET ALERT =====
   useEffect(() => {
     checkBudgetAlert();
   }, [transactions, savingsGoals]);
 
-  // ===== EXISTING FUNCTIONS =====
   const fetchTransactions = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/transactions?user_id=${userId}`);
@@ -162,7 +156,6 @@ function App() {
     }
   };
 
-  // ===== WALLET FUNCTIONS =====
   const fetchWallet = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/wallet?user_id=${userId}`);
@@ -189,8 +182,7 @@ function App() {
         description: description || 'Added money to wallet',
         category: category || 'other'
       });
-      fetchWallet();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Money added to wallet!');
     } catch (error) {
       console.error('Error adding money:', error);
@@ -206,8 +198,7 @@ function App() {
         description: description || 'Withdrew from wallet',
         category: category || 'other'
       });
-      fetchWallet();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Money withdrawn successfully!');
     } catch (error: any) {
       console.error('Error withdrawing money:', error);
@@ -215,7 +206,6 @@ function App() {
     }
   };
 
-  // ===== FUTURE BILLS FUNCTIONS =====
   const fetchFutureBills = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/future-bills?user_id=${userId}`);
@@ -233,7 +223,7 @@ function App() {
         due_date,
         category
       });
-      fetchFutureBills();
+      await refreshAllData();
       toast.success('✅ Bill added successfully!');
     } catch (error) {
       console.error('Error adding bill:', error);
@@ -244,9 +234,7 @@ function App() {
   const handlePayBill = async (billId: number) => {
     try {
       await axios.post(`${API_URL}/api/future-bills/pay/${billId}?user_id=${userId}`);
-      fetchWallet();
-      fetchFutureBills();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Bill paid successfully!');
     } catch (error: any) {
       console.error('Error paying bill:', error);
@@ -254,7 +242,6 @@ function App() {
     }
   };
 
-  // ===== SAVINGS GOALS FUNCTIONS =====
   const fetchSavingsGoals = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/savings-goals?user_id=${userId}`);
@@ -271,7 +258,7 @@ function App() {
         target_amount,
         deadline
       });
-      fetchSavingsGoals();
+      await refreshAllData();
       toast.success('✅ Savings goal added!');
     } catch (error) {
       console.error('Error adding savings goal:', error);
@@ -284,9 +271,7 @@ function App() {
       await axios.post(`${API_URL}/api/savings-goals/add-money/${goalId}?user_id=${userId}`, {
         amount
       });
-      fetchWallet();
-      fetchSavingsGoals();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Money added to savings goal!');
     } catch (error: any) {
       console.error('Error adding money to goal:', error);
@@ -294,7 +279,6 @@ function App() {
     }
   };
 
-  // ===== BUDGET FUNCTIONS =====
   const fetchBudget = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/budget?user_id=${userId}`);
@@ -321,8 +305,7 @@ function App() {
         category,
         budget_amount
       });
-      fetchBudget();
-      fetchBudgetAlerts();
+      await refreshAllData();
       toast.success('✅ Budget set successfully!');
     } catch (error) {
       console.error('Error setting budget:', error);
@@ -330,7 +313,6 @@ function App() {
     }
   };
 
-  // ===== BUDGET ALERT CHECK =====
   const checkBudgetAlert = () => {
     const totalExpense = transactions
       .filter(t => t.type === 'expense')
@@ -346,7 +328,6 @@ function App() {
     }
   };
 
-  // ===== EXISTING FUNCTIONS =====
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -417,23 +398,17 @@ function App() {
     toast.info('👋 Logged out successfully!');
   };
 
-  const addTransaction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!description || !amount || !userId) return;
+  const addTransaction = async (data: { description: string; amount: number; type: 'income' | 'expense' }) => {
+    if (!userId) return;
 
     try {
       await axios.post(`${API_URL}/api/transactions?user_id=${userId}`, {
-        description,
-        amount: parseFloat(amount),
-        type,
+        description: data.description,
+        amount: data.amount,
+        type: data.type,
         date: new Date().toLocaleDateString()
       });
-      setDescription('');
-      setAmount('');
-      fetchTransactions();
-      fetchSummary();
-      fetchWallet();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Transaction added successfully!');
     } catch (error: any) {
       console.error('Error adding transaction:', error);
@@ -444,10 +419,7 @@ function App() {
   const deleteTransaction = async (id: number) => {
     try {
       await axios.delete(`${API_URL}/api/transactions/${id}?user_id=${userId}`);
-      fetchTransactions();
-      fetchSummary();
-      fetchWallet();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Transaction deleted successfully!');
     } catch (error) {
       console.error('Error deleting transaction:', error);
@@ -477,10 +449,7 @@ function App() {
       
       setIsEditModalOpen(false);
       setEditingTransaction(null);
-      fetchTransactions();
-      fetchSummary();
-      fetchWallet();
-      fetchWalletTransactions();
+      await refreshAllData();
       toast.success('✅ Transaction updated successfully!');
     } catch (error) {
       console.error('Error updating transaction:', error);
@@ -488,12 +457,10 @@ function App() {
     }
   };
 
-  // ===== FILTERED TRANSACTIONS (FIXED) =====
   const filteredTransactions = transactions.filter((t) => {
     const matchSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchType = filterType === 'all' || t.type === filterType;
     
-    // Date format fix: Convert filter date to match transaction date format
     let matchDate = true;
     if (filterDate) {
       const filterDateObj = new Date(filterDate);
@@ -504,9 +471,6 @@ function App() {
     return matchSearch && matchType && matchDate;
   });
 
-  // ============================================
-  // SIDEBAR COMPONENT
-  // ============================================
   const Sidebar = () => (
     <div className="sidebar">
       <div className="sidebar-logo">💰 Finance</div>
@@ -526,9 +490,6 @@ function App() {
     </div>
   );
 
-  // ============================================
-  // DASHBOARD CONTENT
-  // ============================================
   const DashboardContent = () => (
     <div className="page-container">
       <header className="dashboard-header">
@@ -568,7 +529,6 @@ function App() {
         </div>
       </div>
 
-      {/* Filter Section */}
       <div className="filter-section">
         <select 
           value={filterType} 
@@ -604,30 +564,7 @@ function App() {
         <p className="no-result">❌ No transaction found for "{searchTerm}"</p>
       )}
 
-      <div className="form-wrapper">
-        <h2 className="form-title">✏️ Add Transaction</h2>
-        <form onSubmit={addTransaction} className="add-form">
-          <input
-            type="text"
-            placeholder="📝 Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-          <input
-            type="number"
-            placeholder="💰 Amount (Taka)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
-          <select value={type} onChange={(e) => setType(e.target.value as 'income' | 'expense')}>
-            <option value="income">📈 Income</option>
-            <option value="expense">📉 Expense</option>
-          </select>
-          <button type="submit" className="add-btn">➕ Add</button>
-        </form>
-      </div>
+      <AddTransactionForm onAdd={addTransaction} />
 
       <div className="transaction-list">
         <h2>📋 Recent Transactions</h2>
@@ -677,7 +614,10 @@ function App() {
                 onChange={(e) => setEditAmount(e.target.value)}
                 required
               />
-              <select value={editType} onChange={(e) => setEditType(e.target.value as 'income' | 'expense')}>
+              <select 
+                value={editType} 
+                onChange={(e) => setEditType(e.target.value as 'income' | 'expense')}
+              >
                 <option value="income">📈 Income</option>
                 <option value="expense">📉 Expense</option>
               </select>
@@ -692,9 +632,6 @@ function App() {
     </div>
   );
 
-  // ============================================
-  // WALLET CONTENT
-  // ============================================
   const WalletContent = () => (
     <div className="page-container">
       <h1>💳 Wallet</h1>
@@ -712,9 +649,6 @@ function App() {
     </div>
   );
 
-  // ============================================
-  // BILLS CONTENT
-  // ============================================
   const BillsContent = () => (
     <div className="page-container">
       <h1>📅 Future Bills</h1>
@@ -726,9 +660,6 @@ function App() {
     </div>
   );
 
-  // ============================================
-  // GOALS CONTENT
-  // ============================================
   const GoalsContent = () => (
     <div className="page-container">
       <h1>🎯 Savings Goals</h1>
@@ -740,9 +671,6 @@ function App() {
     </div>
   );
 
-  // ============================================
-  // BUDGET CONTENT
-  // ============================================
   const BudgetContent = () => (
     <div className="page-container">
       <h1>📊 Monthly Budget</h1>
@@ -753,9 +681,6 @@ function App() {
     </div>
   );
 
-  // ============================================
-  // LOGIN / REGISTER PAGE
-  // ============================================
   if (!isLoggedIn) {
     return (
       <>
@@ -837,9 +762,6 @@ function App() {
     );
   }
 
-  // ============================================
-  // MAIN APP WITH ROUTER
-  // ============================================
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
